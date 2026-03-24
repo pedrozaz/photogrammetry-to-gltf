@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+.idea/
+*.blend
+*.blend1
+*.blend2
+.DS_Store
+*.db
+#.pyc
+pipeline/colmap_workspace/
+!data/raw_images/.gitkeep
+data/raw_images/*
+Thumbs.db
+
