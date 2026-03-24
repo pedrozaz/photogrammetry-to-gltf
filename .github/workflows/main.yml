@@ -14,15 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install uv
-        uses: astral-sh/uv@v2
+        uses: astral-sh/setup-uv@v5
         with:
-          version: "latest"
-      - name: Set up Python 3.12
-        run: uv python install 3.12
-      - name: Validate environment
-        run: |
-          uv sync
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install dependencies
+        run: uv sync --no-dev
+
+      - name: Run linter (Ruff)
+        run: uvx ruff check .
 
   deploy-frontend:
     needs: python-check
