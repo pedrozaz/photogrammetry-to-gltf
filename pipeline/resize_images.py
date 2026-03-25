@@ -3,10 +3,10 @@ from PIL import Image
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 IMAGE_DIR = PROJECT_DIR / "data" / "raw_images"
-MAX_DIMENSION = 1600
+MAX_DIMENSION = 1920
 
 def resize_images():
-    images = list(IMAGE_DIR.glob("*.jpg")) + list(IMAGE_DIR.glob("*.jpeg"))
+    images = list(IMAGE_DIR.glob("*.jpg")) + list(IMAGE_DIR.glob("*.jpeg")) + list(IMAGE_DIR.glob("*.JPG"))
 
     if not images:
         print("No images found")

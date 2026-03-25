@@ -15,6 +15,7 @@ DOCKER_IMAGE_DIR = "/workspace/data/raw_images"
 DOCKER_WORKSPACE = "/workspace/pipeline/colmap_workspace"
 DOCKER_DB_PATH = f"{DOCKER_WORKSPACE}/database.db"
 DOCKER_SPARSE_DIR = f"{DOCKER_WORKSPACE}/sparse"
+DOCKER_DENSE_DIR = f"{DOCKER_WORKSPACE}/dense"
 
 def run_colmap(args):
     cmd = [
@@ -74,6 +75,7 @@ def main():
         'feature_extractor',
         '--database_path', DOCKER_DB_PATH,
         '--image_path', DOCKER_IMAGE_DIR,
+        '--ImageReader.camera_model', 'OPENCV',
         '--ImageReader.single_camera', '1'
         ])
 
@@ -93,6 +95,38 @@ def main():
 
     # Validation
     verify_registration()
+
+    # 5. Image Undistorter
+    run_colmap([
+        'image_undistorter',
+        '--image_path', DOCKER_IMAGE_DIR,
+        '--input_path', f'{DOCKER_SPARSE_DIR}/0',
+        '--output_path', DOCKER_DENSE_DIR,
+        '--output_type', 'COLMAP'
+    ])
+
+    run_colmap([
+        'patch_match_stereo',
+        '--workspace_path', DOCKER_DENSE_DIR,
+        '--workspace_format', 'COLMAP',
+        '--PatchMatchStereo.geom_consistency', 'true'
+    ])
+
+    run_colmap([
+        'stereo_fusion',
+        '--workspace_path', DOCKER_DENSE_DIR,
+        '--workspace_format', 'COLMAP',
+        '--input_type', 'geometric',
+        '--output_path', f'{DOCKER_DENSE_DIR}/fused.ply'
+    ])
+
+    run_colmap([
+        'poisson_mesher',
+        '--input_path', f'{DOCKER_DENSE_DIR}/fused.ply',
+        '--output_path', f'{DOCKER_DENSE_DIR}/meshed.ply'
+    ])
+
+    print(f'\n[SUCCESS] Colmap execution completed.')
 
 if __name__ == '__main__':
     main()
