@@ -1,6 +1,5 @@
-import os
-import subprocess
 import sqlite3
+import subprocess
 from pathlib import Path
 
 # LOCAL PATHS
@@ -70,7 +69,6 @@ def main():
         print(f'\n[ERROR] Image directory not found in {IMAGE_DIR}.')
         return
 
-    # Feature Extraction
     run_colmap([
         'feature_extractor',
         '--database_path', DOCKER_DB_PATH,
@@ -79,13 +77,11 @@ def main():
         '--ImageReader.single_camera', '1'
         ])
 
-    # Exhaustive Matching
     run_colmap([
         'exhaustive_matcher',
         '--database_path', DOCKER_DB_PATH
     ])
 
-    # Sparse Reconstruction (Mapping)
     run_colmap([
         'mapper',
         '--database_path', DOCKER_DB_PATH,
@@ -93,10 +89,8 @@ def main():
         '--output_path', DOCKER_SPARSE_DIR
     ])
 
-    # Validation
     verify_registration()
 
-    # 5. Image Undistorter
     run_colmap([
         'image_undistorter',
         '--image_path', DOCKER_IMAGE_DIR,
